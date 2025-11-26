@@ -622,7 +622,7 @@ class DBSpendUpdateWriter:
                             for (
                                 user_id,
                                 response_cost,
-                            ) in user_list_transactions.items():
+                            ) in sorted(user_list_transactions.items()): # Sort to minimize the probability of deadlocks
                                 batcher.litellm_usertable.update_many(
                                     where={"user_id": user_id},
                                     data={"spend": {"increment": response_cost}},
@@ -677,7 +677,7 @@ class DBSpendUpdateWriter:
                             for (
                                 token,
                                 response_cost,
-                            ) in key_list_transactions.items():
+                            ) in sorted(key_list_transactions.items()): # Sort to minimize the probability of deadlocks
                                 batcher.litellm_verificationtoken.update_many(  # 'update_many' prevents error from being raised if no row exists
                                     where={"token": token},
                                     data={"spend": {"increment": response_cost}},
@@ -718,7 +718,7 @@ class DBSpendUpdateWriter:
                             for (
                                 team_id,
                                 response_cost,
-                            ) in team_list_transactions.items():
+                            ) in sorted(team_list_transactions.items()): # Sort to minimize the probability of deadlocks
                                 verbose_proxy_logger.debug(
                                     "Updating spend for team id={} by {}".format(
                                         team_id, response_cost
@@ -768,7 +768,7 @@ class DBSpendUpdateWriter:
                             for (
                                 key,
                                 response_cost,
-                            ) in team_member_list_transactions.items():
+                            ) in sorted(team_member_list_transactions.items()): # Sort to minimize the probability of deadlocks
                                 # key is "team_id::<value>::user_id::<value>"
                                 team_id = key.split("::")[1]
                                 user_id = key.split("::")[3]
@@ -810,7 +810,7 @@ class DBSpendUpdateWriter:
                             for (
                                 org_id,
                                 response_cost,
-                            ) in org_list_transactions.items():
+                            ) in sorted(org_list_transactions.items()): # Sort to minimize the probability of deadlocks
                                 batcher.litellm_organizationtable.update_many(  # 'update_many' prevents error from being raised if no row exists
                                     where={"organization_id": org_id},
                                     data={"spend": {"increment": response_cost}},
@@ -884,7 +884,7 @@ class DBSpendUpdateWriter:
                         timeout=timedelta(seconds=60)
                     ) as transaction:
                         async with transaction.batch_() as batcher:
-                            for entity_id, response_cost in transactions.items():
+                            for entity_id, response_cost in sorted(transactions.items()): # Sort to minimize the probability of deadlocks
                                 verbose_proxy_logger.debug(
                                     f"Updating spend for {entity_name} {where_field}={entity_id} by {response_cost}"
                                 )

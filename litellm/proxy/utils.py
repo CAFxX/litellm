@@ -3213,7 +3213,7 @@ class ProxyUpdateSpend:
                         for (
                             end_user_id,
                             response_cost,
-                        ) in end_user_list_transactions.items():
+                        ) in sorted(end_user_list_transactions.items()): # Sort to minimize the probability of deadlocks
                             if litellm.max_end_user_budget is not None:
                                 pass
                             batcher.litellm_endusertable.upsert(
